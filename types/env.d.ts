@@ -10,5 +10,9 @@ declare namespace NodeJS {
     // NewsData API Configuration
     NEXT_PUBLIC_NEWSDATA_API_KEY: string;
     NEXT_PUBLIC_NEWSDATA_BASE_URL: string;
+
+    // Supabase Configuration
+    NEXT_PUBLIC_SUPABASE_URL: string;
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
   }
 }

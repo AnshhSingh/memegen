@@ -1,9 +1,9 @@
 // A simple in-memory store for rate limiting
-// should use redis but its fine
+// In a production environment, you should use a persistent store like Redis.
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
-const LIMIT = 6;
-const RESET_INTERVAL = 24 * 60 * 60 * 1000;
+const LIMIT = 6; // 6 generations per day
+const RESET_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
 export interface RateLimitInfo {
   remaining: number;
@@ -11,23 +11,24 @@ export interface RateLimitInfo {
   isBlocked: boolean;
 }
 
-export function checkRateLimit(ip: string): RateLimitInfo {
+export function checkRateLimit(userId: string): RateLimitInfo {
   const now = Date.now();
-  const userLimit = rateLimitStore.get(ip);
+  const userLimit = rateLimitStore.get(userId);
 
+  // If a record exists and it's expired, remove it.
   if (userLimit && now > userLimit.resetAt) {
-    rateLimitStore.delete(ip);
+    rateLimitStore.delete(userId);
   }
 
-  // If no record exists or it's expired, create a new one
-  if (!rateLimitStore.has(ip)) {
-    rateLimitStore.set(ip, {
+  // If no record exists or it's expired, create a new one.
+  if (!rateLimitStore.has(userId)) {
+    rateLimitStore.set(userId, {
       count: 0,
       resetAt: now + RESET_INTERVAL,
     });
   }
 
-  const record = rateLimitStore.get(ip)!;
+  const record = rateLimitStore.get(userId)!;
   const remaining = Math.max(0, LIMIT - record.count);
   const isBlocked = record.count >= LIMIT;
 
@@ -38,11 +39,23 @@ export function checkRateLimit(ip: string): RateLimitInfo {
   };
 }
 
-export function incrementRateLimit(ip: string): RateLimitInfo {
-  const record = rateLimitStore.get(ip);
+export function incrementRateLimit(userId: string): RateLimitInfo {
+  const record = rateLimitStore.get(userId);
   if (!record) {
-    // This shouldn't happen as checkRateLimit should have been called first
-    throw new Error('Rate limit record not found');
+    // This could happen if the store was cleared or the server restarted.
+    // We'll create a new record and increment it.
+    checkRateLimit(userId);
+    const newRecord = rateLimitStore.get(userId)!;
+    newRecord.count++;
+    
+    const remaining = Math.max(0, LIMIT - newRecord.count);
+    const isBlocked = newRecord.count >= LIMIT;
+
+    return {
+      remaining,
+      limit: LIMIT,
+      isBlocked,
+    };
   }
 
   record.count++;

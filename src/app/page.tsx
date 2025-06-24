@@ -1,6 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase-client'
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import type { User } from '@supabase/supabase-js'
 import { SAFE_CATEGORIES } from '@/lib/newsfetch'
 import { downloadImage } from '@/lib/downloadUtils'
 import { Button } from "@/components/ui/button"
@@ -36,6 +40,23 @@ interface MemeData {
 }
 
 export default function Home() {
+  const [session, setSession] = useState<User | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session?.user ?? null)
+    })
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState<string>()
   const [imageSize, setImageSize] = useState<'1024x1024' | '1024x1792' | '1792x1024'>('1024x1024')
@@ -45,6 +66,14 @@ export default function Home() {
   const [progressStatus, setProgressStatus] = useState('')
   const [editingPrompt, setEditingPrompt] = useState(false)
   const [customPrompt, setCustomPrompt] = useState('')
+
+  const handleGenerateClick = () => {
+    if (!session) {
+      setShowAuthModal(true);
+    } else {
+      generateMeme();
+    }
+  }
 
   const generateMeme = async () => {
     try {
@@ -102,15 +131,71 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white p-8 flex items-center justify-center">
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700/60 p-8 rounded-2xl shadow-2xl w-full max-w-md relative">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <Auth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#6d28d9',
+                      brandAccent: '#8b5cf6',
+                      defaultButtonBackground: '#1f2937',
+                      defaultButtonBackgroundHover: '#374151',
+                      inputBackground: '#111827',
+                      inputBorder: '#374151',
+                      inputText: '#ffffff',
+                      inputLabelText: '#9ca3af',
+                    },
+                    fonts: {
+                      bodyFontFamily: 'inherit',
+                      buttonFontFamily: 'inherit',
+                      inputFontFamily: 'inherit',
+                      labelFontFamily: 'inherit',
+                    },
+                  },
+                },
+              }}
+              providers={['github']}
+              socialLayout="horizontal"
+              theme="dark"
+            />
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-3xl mx-auto space-y-10">
         {/* Header */}
-        <div className="text-center space-y-3">
-            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-purple-800 via-pink-600 to-red-800 text-transparent bg-clip-text drop-shadow-lg">
+        <div className="text-center space-y-3 relative">
+          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-purple-800 via-pink-600 to-red-800 text-transparent bg-clip-text drop-shadow-lg">
             MemeGen: News to Meme
-            </h1>
+          </h1>
           <p className="text-gray-400 text-lg font-medium">
             Instantly turn the latest news into viral memes with AI ✨
           </p>
+          {session && (
+            <div className="absolute top-0 right-0 flex items-center gap-4">
+              <span className="text-gray-300">Welcome, {session.email}</span>
+              <Button
+                onClick={() => supabase.auth.signOut()}
+                variant="outline"
+                className="border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
+              >
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Controls */}
@@ -139,12 +224,12 @@ export default function Home() {
           </Select>
           <div className="flex flex-col items-center gap-2">
             <Button
-              onClick={generateMeme}
-              disabled={loading || (memeData?.meme.rateLimit.remaining === 0)}
+              onClick={handleGenerateClick}
+              disabled={loading || (!!session && memeData?.meme.rateLimit.remaining === 0)}
               className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold shadow-md"
               size="lg"
             >
-              {loading ? "Generating..." : "Generate Meme"}
+              {loading ? "Generating..." : (session ? "Generate Meme" : "Sign In to Generate")}
             </Button>
             {memeData?.meme.rateLimit && (
               <p className={`text-sm ${memeData.meme.rateLimit.remaining === 0 ? 'text-red-400' : 'text-gray-400'}`}>
