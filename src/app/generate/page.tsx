@@ -49,7 +49,7 @@ export default function Home() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        window.location.reload()
+        // window.location.reload()
       }
       setSession(session?.user ?? null)
     })
