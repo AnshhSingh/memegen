@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { generateImage } from '@/lib/imageGen';
-import { checkRateLimit, incrementRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'edge';
 
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   };
 
   (async () => {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
         return;
       }
 
-      const { prompt, size = '1024x1024' } = await request.json();
+      const { prompt, size = '1024x1024', originalArticle } = await request.json();
 
-      const rateLimit = checkRateLimit(user.id);
+      const rateLimit = await checkRateLimit(supabase, user.id);
       if (rateLimit.isBlocked) {
         await send(100, 'Error', {
           error: `Rate limit exceeded. You can generate ${rateLimit.limit} memes per day.`,
@@ -111,19 +111,27 @@ export async function POST(request: NextRequest) {
 
       const { data: { publicUrl } } = supabase.storage.from('meme_images').getPublicUrl(imagePath);
       
-      const updatedRateLimit = incrementRateLimit(user.id);
-      
       const { error: dbError } = await supabase.from('generations').insert({
         user_id: user.id,
         prompt: finalPrompt,
         image_url: publicUrl,
         used_revised_prompt: usedRevisedPrompt,
+        ...(originalArticle && {
+          article_title: originalArticle.title,
+          article_link: originalArticle.link,
+          article_description: originalArticle.description,
+          article_category: originalArticle.category,
+          article_pub_date: originalArticle.pubDate,
+        })
       });
 
       if (dbError) {
         console.error('Failed to save regeneration record:', dbError);
+        throw new Error(`Failed to save regeneration record: ${dbError.message}`);
       }
       
+      const updatedRateLimit = await checkRateLimit(supabase, user.id);
+
       await send(100, 'Complete!', {
         prompt: finalPrompt,
         imageUrls: [publicUrl],

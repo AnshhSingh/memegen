@@ -4,7 +4,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { fetchLatestNews, type NewsCategory } from '@/lib/newsfetch';
 import { generateMemePrompt } from '@/lib/gemini';
 import { generateImage } from '@/lib/imageGen';
-import { checkRateLimit, incrementRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'edge';
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   };
   
   (async () => {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       const size = searchParams.get('size') as '1024x1024' | '1024x1792' | '1792x1024' | null;
 
       // Check rate limit for the authenticated user
-      const rateLimit = checkRateLimit(user.id);
+      let rateLimit = await checkRateLimit(supabase, user.id);
       if (rateLimit.isBlocked) {
         await send(100, 'Error', { 
           error: `Rate limit exceeded. You can only generate ${rateLimit.limit} memes per day.`,
@@ -126,8 +126,6 @@ export async function GET(request: NextRequest) {
       await send(90, 'Image saved!');
 
       // 4. Increment rate limit and save record
-      const updatedRateLimit = incrementRateLimit(user.id);
-      
       const { error: dbError } = await supabase.from('generations').insert({
         user_id: user.id,
         prompt: finalPrompt,
@@ -143,7 +141,11 @@ export async function GET(request: NextRequest) {
       if (dbError) {
         // Log the error but don't block the user from seeing their meme
         console.error('Failed to save generation record:', dbError);
+        throw new Error(`Failed to save generation record: ${dbError.message}`);
       }
+
+      // Re-check rate limit after incrementing
+      const updatedRateLimit = await checkRateLimit(supabase, user.id);
 
       await send(100, 'Complete!', {
         meme: {

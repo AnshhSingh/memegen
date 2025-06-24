@@ -1,9 +1,6 @@
-// A simple in-memory store for rate limiting
-// In a production environment, you should use a persistent store like Redis.
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-const LIMIT = 6; // 6 generations per day
-const RESET_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+const LIMIT = 6;
 
 export interface RateLimitInfo {
   remaining: number;
@@ -11,56 +8,28 @@ export interface RateLimitInfo {
   isBlocked: boolean;
 }
 
-export function checkRateLimit(userId: string): RateLimitInfo {
-  const now = Date.now();
-  const userLimit = rateLimitStore.get(userId);
+export async function checkRateLimit(supabase: SupabaseClient, userId: string): Promise<RateLimitInfo> {
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  // If a record exists and it's expired, remove it.
-  if (userLimit && now > userLimit.resetAt) {
-    rateLimitStore.delete(userId);
-  }
-
-  // If no record exists or it's expired, create a new one.
-  if (!rateLimitStore.has(userId)) {
-    rateLimitStore.set(userId, {
-      count: 0,
-      resetAt: now + RESET_INTERVAL,
-    });
-  }
-
-  const record = rateLimitStore.get(userId)!;
-  const remaining = Math.max(0, LIMIT - record.count);
-  const isBlocked = record.count >= LIMIT;
-
-  return {
-    remaining,
-    limit: LIMIT,
-    isBlocked,
-  };
-}
-
-export function incrementRateLimit(userId: string): RateLimitInfo {
-  const record = rateLimitStore.get(userId);
-  if (!record) {
-    // This could happen if the store was cleared or the server restarted.
-    // We'll create a new record and increment it.
-    checkRateLimit(userId);
-    const newRecord = rateLimitStore.get(userId)!;
-    newRecord.count++;
-    
-    const remaining = Math.max(0, LIMIT - newRecord.count);
-    const isBlocked = newRecord.count >= LIMIT;
-
+  const { count, error } = await supabase
+    .from('generations')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', twentyFourHoursAgo);//should work
+  
+  if (error) {
+    console.error('Error checking rate limit:', error);
+    // Fail open: if the check fails, allow the request but log the error
     return {
-      remaining,
+      remaining: LIMIT,
       limit: LIMIT,
-      isBlocked,
+      isBlocked: false,
     };
   }
 
-  record.count++;
-  const remaining = Math.max(0, LIMIT - record.count);
-  const isBlocked = record.count >= LIMIT;
+  const used = count ?? 0;
+  const remaining = Math.max(0, LIMIT - used);
+  const isBlocked = used >= LIMIT;
 
   return {
     remaining,

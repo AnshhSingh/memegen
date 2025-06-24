@@ -1,0 +1,57 @@
+[
+    {
+      "table_name": "generations",
+      "column_name": "id",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "user_id",
+      "data_type": "uuid"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "prompt",
+      "data_type": "text"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "image_url",
+      "data_type": "text"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "used_revised_prompt",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "article_title",
+      "data_type": "text"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "article_link",
+      "data_type": "text"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "article_description",
+      "data_type": "text"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "article_category",
+      "data_type": "ARRAY"
+    },
+    {
+      "table_name": "generations",
+      "column_name": "article_pub_date",
+      "data_type": "text"
+    }
+  ]
