@@ -49,7 +49,14 @@ export default function Home() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        // window.location.reload()
+        const reloaded = sessionStorage.getItem('reloaded_for_signin');
+        if (!reloaded) {
+          sessionStorage.setItem('reloaded_for_signin', 'true');
+          window.location.reload();
+          return;
+        }
+      } else if (event === 'SIGNED_OUT') {
+        sessionStorage.removeItem('reloaded_for_signin');
       }
       setSession(session?.user ?? null)
     })
