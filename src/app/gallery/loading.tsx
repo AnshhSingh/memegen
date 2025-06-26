@@ -1,10 +1,10 @@
 export default function Loading() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-black text-white p-8 animate-pulse">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/50 to-gray-100 dark:from-gray-900 dark:via-purple-900/20 dark:to-black text-gray-900 dark:text-white p-8 animate-pulse">
       <div className="text-center space-y-4">
         <div className="flex justify-center items-center">
           <svg
-            className="animate-spin h-8 w-8 text-purple-400"
+            className="animate-spin h-8 w-8 text-purple-600 dark:text-purple-400"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -24,7 +24,7 @@ export default function Loading() {
             ></path>
           </svg>
         </div>
-        <p className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+        <p className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-pink-700 dark:from-purple-400 dark:to-pink-500">
           Loading your masterpiece...
         </p>
       </div>

@@ -141,15 +141,15 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-black text-white p-8 flex flex-col items-center justify-center relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/50 to-gray-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-black text-gray-900 dark:text-white p-8 flex flex-col items-center justify-center relative overflow-hidden">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         className="absolute inset-0 z-0"
       >
-        <div className="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
-        <div className="absolute bottom-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
+        <div className="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(139,92,246,.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
+        <div className="absolute bottom-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(219,39,119,.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
       </motion.div>
       
       <AnimatePresence>
@@ -160,10 +160,10 @@ export default function Home() {
             exit={{ opacity: 0, scale: 0.9 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4"
           >
-            <div className="bg-gray-900/70 border border-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md relative">
+            <div className="bg-white/95 dark:bg-gray-900/70 border border-gray-200 dark:border-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md relative">
               <button
                 onClick={() => setShowAuthModal(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -171,8 +171,8 @@ export default function Home() {
                 </svg>
               </button>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white drop-shadow-lg">Get Started</h2>
-                <p className="text-gray-300 mt-2">Sign in or create an account to generate memes.</p>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white drop-shadow-lg">Get Started</h2>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">Sign in or create an account to generate memes.</p>
               </div>
               <Auth
                 supabaseClient={supabase}
@@ -219,24 +219,9 @@ export default function Home() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row justify-between items-center gap-4"
+          className="flex justify-center items-center mb-4"
         >
-          <span className="text-gray-300 text-center md:text-left">Welcome, {session.email}</span>
-          <div className="flex items-center gap-4">
-            <Button asChild variant="outline" className="border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800 backdrop-blur-sm bg-black/20">
-              <Link href="/">Home</Link>
-            </Button>
-            <Button asChild variant="outline" className="border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800 backdrop-blur-sm bg-black/20">
-              <Link href="/gallery">Gallery</Link>
-            </Button>
-            <Button
-              onClick={() => supabase.auth.signOut()}
-              variant="outline"
-              className="border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800 backdrop-blur-sm bg-black/20"
-            >
-              Sign Out
-            </Button>
-          </div>
+          <span className="text-gray-600 dark:text-gray-300 text-center">Welcome, {session.email}</span>
         </motion.div>
       )}
         {/* Header */}
@@ -246,10 +231,10 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="text-center space-y-3"
         >
-          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-green-400 via-blue-600 to-purple-700 text-transparent bg-clip-text drop-shadow-lg">
+          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-green-700 via-blue-700 to-purple-800 dark:from-green-600 dark:via-blue-600 dark:to-purple-700 text-transparent bg-clip-text drop-shadow-lg">
             MemeGen: News to Meme
           </h1>
-          <p className="text-gray-400 text-lg font-medium">
+          <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">
             Instantly turn the latest news into viral memes with AI ✨
           </p>
         </motion.div>
@@ -260,12 +245,12 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center bg-black/30 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-500/20">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center bg-white/20 dark:bg-black/30 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-300/30 dark:border-gray-500/20">
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-[200px] bg-gray-800/70 border-gray-700 text-white hover:bg-gray-700/80 transition-colors">
+              <SelectTrigger className="w-[200px] bg-white/80 dark:bg-gray-800/70 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-colors">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent side="bottom" align="center" className="bg-black/30 backdrop-blur-lg border border-gray-500/20 text-white">
+              <SelectContent side="bottom" align="center" className="bg-white/95 dark:bg-black/30 backdrop-blur-lg border border-gray-300 dark:border-gray-500/20 text-gray-900 dark:text-white">
                 {SAFE_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat} className="capitalize">
                     {cat}
@@ -274,10 +259,10 @@ export default function Home() {
               </SelectContent>
             </Select>
             <Select value={imageSize} onValueChange={(value: typeof imageSize) => setImageSize(value)}>
-              <SelectTrigger className="w-[150px] bg-gray-800/70 border-gray-700 text-white hover:bg-gray-700/80 transition-colors">
+              <SelectTrigger className="w-[150px] bg-white/80 dark:bg-gray-800/70 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-colors">
                 <SelectValue placeholder="Image size" />
               </SelectTrigger>
-              <SelectContent side="bottom" align="center" className="bg-black/30 backdrop-blur-lg border border-gray-500/20 text-white">
+              <SelectContent side="bottom" align="center" className="bg-white/95 dark:bg-black/30 backdrop-blur-lg border border-gray-300 dark:border-gray-500/20 text-gray-900 dark:text-white">
                 <SelectItem value="1024x1024">Square (1:1)</SelectItem>
                 <SelectItem value="1024x1792">Portrait (9:16)</SelectItem>
                 <SelectItem value="1792x1024">Landscape (16:9)</SelectItem>
@@ -310,7 +295,7 @@ export default function Home() {
             exit={{ opacity: 0, height: 0 }}
             className="space-y-2 overflow-hidden"
           >
-            <div className="flex justify-between text-sm text-gray-400">
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
               <span>{progressStatus}</span>
               <span>{progress}%</span>
             </div>
@@ -328,10 +313,10 @@ export default function Home() {
             exit={{ opacity: 0 }}
             className="space-y-2"
           >
-            <div className="bg-red-500/10 border border-red-500 text-red-400 p-4 rounded-lg text-center">
+            <div className="bg-red-500/20 border border-red-500/50 text-red-600 dark:text-red-400 p-4 rounded-lg text-center">
               <p className="font-semibold mb-1">{error}</p>
               {error.includes('Content filter triggered') && (
-                <p className="text-sm text-red-400/80">
+                <p className="text-sm text-red-500/80 dark:text-red-400/80">
                   This usually happens when the prompt contains potentially inappropriate content according to OpenAI . 
                   Try some other category for now sorry!
                 </p>
@@ -348,20 +333,20 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="space-y-6 bg-black/30 backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-gray-500/20"
+            className="space-y-6 bg-white/20 dark:bg-black/30 backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-gray-300/30 dark:border-gray-500/20"
           >
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-100">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {memeData.meme.originalArticle.title}
               </h2>
-              <p className="text-gray-400 text-base">
+              <p className="text-gray-600 dark:text-gray-400 text-base">
                 {memeData.meme.originalArticle.description}
               </p>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-purple-400">AI-Generated Image Prompt:</p>
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">AI-Generated Image Prompt:</p>
                   {memeData.meme.usedRevisedPrompt && (
-                    <span className="text-xs text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-full border border-yellow-500/20 animate-pulse">
+                    <span className="text-xs text-yellow-700 dark:text-yellow-500 bg-yellow-500/20 dark:bg-yellow-500/10 px-2 py-1 rounded-full border border-yellow-500/40 dark:border-yellow-500/20 animate-pulse">
                        Generated with safety adjustments
                     </span>
                   )}
@@ -371,14 +356,14 @@ export default function Home() {
                     <textarea
                       value={customPrompt}
                       onChange={(e) => setCustomPrompt(e.target.value)}
-                      className="w-full min-h-[100px] text-lg font-medium text-pink-400 bg-gray-800/50 p-4 rounded-lg border border-gray-700/50 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
+                      className="w-full min-h-[100px] text-lg font-medium text-gray-900 dark:text-pink-400 bg-white/80 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700/50 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
                       placeholder="Edit your meme prompt..."
                     />
                     <div className="flex gap-2 justify-end">
                       <Button
                         onClick={() => setEditingPrompt(false)}
                         variant="outline"
-                        className="border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800 backdrop-blur-sm bg-black/20"
+                        className="border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 backdrop-blur-sm bg-white/20 dark:bg-black/20"
                       >
                         Cancel
                       </Button>
@@ -448,14 +433,14 @@ export default function Home() {
                     </div>
                   </div>
                 ) : (
-                  <div className="group relative text-lg font-medium text-pink-400 bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+                  <div className="group relative text-lg font-medium text-gray-900 dark:text-pink-400 bg-white/80 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700/50">
                     "{memeData.meme.prompt}"
                     <button
                       onClick={() => {
                         setCustomPrompt(memeData.meme.prompt);
                         setEditingPrompt(true);
                       }}
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg bg-gray-700/50 hover:bg-gray-700 text-gray-400 hover:text-white"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg bg-gray-200/80 dark:bg-gray-700/50 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -513,11 +498,11 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-            <div className="text-xs text-gray-500 text-right">
+            <div className="text-xs text-gray-500 dark:text-gray-500 text-right">
               Generated on: {new Date().toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600 text-center mt-2">
-              Powered by <span className="font-semibold text-purple-400">newsdata.io</span>, <span className="font-semibold text-pink-400">Gemini</span> & <span className="font-semibold text-blue-400">DALLE</span>
+            <div className="text-xs text-gray-600 dark:text-gray-600 text-center mt-2">
+              Powered by <span className="font-semibold text-purple-600 dark:text-purple-400">newsdata.io</span>, <span className="font-semibold text-pink-600 dark:text-pink-400">Gemini</span> & <span className="font-semibold text-blue-600 dark:text-blue-400">DALLE</span>
             </div>
           </motion.div>
         )}
